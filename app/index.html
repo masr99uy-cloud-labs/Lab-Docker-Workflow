@@ -30,7 +30,8 @@
             }
         });
         const jsonResponse = await response.json();
-        document.getElementById('dynamic').textContent = jsonResponse.data;
+        document.getElementById('dynamic').textContent =
+             `${jsonResponse.name}: ${jsonResponse.message}`;
     })();
 </script>
 <body>
