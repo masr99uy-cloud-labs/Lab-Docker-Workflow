@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   my-app:
-    image: mathiassilvauy99/my-app:1.0
+    image: mathiassilvauy99/my-app:latest
     ports:
       - "3000:3000"
     environment:
