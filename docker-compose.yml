@@ -1,0 +1,47 @@
+name: mongo-compose-demo
+services:
+  my-app:
+    image: mathiassilvauy99/my-app:latest
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_DB_USERNAME: ${MONGO_ADMIN_USER}
+      MONGO_DB_PWD: ${MONGO_ADMIN_PASS}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped  
+
+  mongodb:
+    image: mongo:8.3
+    # No published ports: the database is only reachable from inside the Compose network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASS}
+
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    ports:
+      - "127.0.0.1:8081:8081" # only reachable from your own machine
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ADMIN_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ADMIN_PASS}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASS}
+    depends_on:
+       mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+ 
+volumes:
+  mongo-data:
